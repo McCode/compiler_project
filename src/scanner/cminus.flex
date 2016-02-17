@@ -2,6 +2,7 @@ package scanner;
 
 %%
 
+
 %class CMinusScannerLex
 %type Token.TokenType
 
