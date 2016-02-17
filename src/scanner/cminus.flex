@@ -12,13 +12,20 @@ import java.io.*;
     private Token nextToken;
 
     public Token getNextToken() throws java.io.IOException {
-        Token returnToken = nextToken;
-        if (nextToken.getTokenType() != Token.TokenType.EOF_TOKEN)
+        if(nextToken == null) {
             nextToken = scanToken();
+        }
+        Token returnToken = nextToken;
+        if (nextToken.getTokenType() != Token.TokenType.EOF_TOKEN) {
+            nextToken = scanToken();
+        }
         return returnToken;
     }
 
     public Token viewNextToken() {
+        if(nextToken == null) {
+            nextToken = scanToken();
+        }
         return nextToken;
     }
 
