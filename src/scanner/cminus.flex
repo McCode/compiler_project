@@ -1,24 +1,29 @@
 package scanner;
+import java.io.*;
 
 %%
 
 
 %class CMinusScannerLex
+%implements Scanner
 %type Token.TokenType
 
 %{
-    //private boolean firstTime = true;
-    
+    private Token nextToken;
+
     public Token getNextToken() throws java.io.IOException {
-        Token.TokenType currentToken;
-        /*if(firstTime) {
-            firstTime = false;
-            yyin = source;
-            yyout = listing;
-        }*/
-        
-        currentToken = yylex();
-        return new Token(currentToken);
+        Token returnToken = nextToken;
+        if (nextToken.getTokenType() != Token.TokenType.EOF_TOKEN)
+            nextToken = scanToken();
+        return returnToken;
+    }
+
+    public Token viewNextToken() {
+        return nextToken;
+    }
+
+    private Token scanToken() throws IOException {
+        return new Token(yylex());
     }
 %}
 
