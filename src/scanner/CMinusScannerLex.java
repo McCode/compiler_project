@@ -265,6 +265,7 @@ class CMinusScannerLex implements Scanner {
     private Token nextToken;
 
     public Token getNextToken() throws IOException, LexicalErrorException {
+        // This makes sure nextToken gets assigned before it's used
         if(nextToken == null) {
             nextToken = scanToken();
         }
@@ -276,6 +277,7 @@ class CMinusScannerLex implements Scanner {
     }
 
     public Token viewNextToken() throws IOException, LexicalErrorException {
+        // This makes sure nextToken gets assigned before it's used
         if(nextToken == null) {
             nextToken = scanToken();
         }
@@ -284,6 +286,9 @@ class CMinusScannerLex implements Scanner {
 
     private Token scanToken() throws IOException, LexicalErrorException {
         Token returnToken = yylex();
+
+        // yylex returns a null when it reaches the end of the file.
+        // We return an end-of-file token instead.
         if(returnToken != null) {
             return returnToken;
         } else {

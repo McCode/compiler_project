@@ -6,13 +6,18 @@ import java.io.*;
 
 %class CMinusScannerLex
 %implements Scanner
+
+/* makes yylex() return type Token */
 %type Token
+
+/* makes yylex() throw our own special exception type */
 %yylexthrow LexicalErrorException
 
 %{
     private Token nextToken;
 
     public Token getNextToken() throws IOException, LexicalErrorException {
+        // This makes sure nextToken gets assigned before it's used
         if(nextToken == null) {
             nextToken = scanToken();
         }
@@ -24,6 +29,7 @@ import java.io.*;
     }
 
     public Token viewNextToken() throws IOException, LexicalErrorException {
+        // This makes sure nextToken gets assigned before it's used
         if(nextToken == null) {
             nextToken = scanToken();
         }
@@ -32,6 +38,9 @@ import java.io.*;
 
     private Token scanToken() throws IOException, LexicalErrorException {
         Token returnToken = yylex();
+
+        // yylex returns a null when it reaches the end of the file.
+        // We return an end-of-file token instead.
         if(returnToken != null) {
             return returnToken;
         } else {
@@ -85,7 +94,10 @@ comment    = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 {whitespace} { /* ignore */ }
 {comment}    { /* ignore */ }
 
+/* This covers the case of hi3 */
 {letter}+{digit}+ {throw new LexicalErrorException("Invalid token.");}
+
+/* This covers the case of 3hi */
 {digit}+{letter}+ {throw new LexicalErrorException("Invalid token.");}
 
 
