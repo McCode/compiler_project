@@ -6,12 +6,13 @@ import java.io.*;
 
 %class CMinusScannerLex
 %implements Scanner
-%type Token.TokenType
+%type Token
+%yylexthrow LexicalErrorException
 
 %{
     private Token nextToken;
 
-    public Token getNextToken() throws java.io.IOException {
+    public Token getNextToken() throws IOException, LexicalErrorException {
         if(nextToken == null) {
             nextToken = scanToken();
         }
@@ -22,15 +23,20 @@ import java.io.*;
         return returnToken;
     }
 
-    public Token viewNextToken() {
+    public Token viewNextToken() throws IOException, LexicalErrorException {
         if(nextToken == null) {
             nextToken = scanToken();
         }
         return nextToken;
     }
 
-    private Token scanToken() throws IOException {
-        return new Token(yylex());
+    private Token scanToken() throws IOException, LexicalErrorException {
+        Token returnToken = yylex();
+        if(returnToken != null) {
+            return returnToken;
+        } else {
+            return new Token(Token.TokenType.EOF_TOKEN);
+        }
     }
 %}
 
@@ -38,46 +44,49 @@ digit      = [0-9]
 number     = {digit}+
 letter     = [a-zA-Z]
 identifier = {letter}+
-whitespace = [ \t\rn]+
+whitespace = [ \t\r\n]+
 comment    = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 
 
 
 %%
 
-"int"        {return Token.TokenType.INT_TOKEN;}
-"if"         {return Token.TokenType.IF_TOKEN;}
-"return"     {return Token.TokenType.RETURN_TOKEN;}
-"else"       {return Token.TokenType.ELSE_TOKEN;}
-"void"       {return Token.TokenType.VOID_TOKEN;}
-"while"      {return Token.TokenType.WHILE_TOKEN;}
+"int"        {return new Token(Token.TokenType.INT_TOKEN);}
+"if"         {return new Token(Token.TokenType.IF_TOKEN);}
+"return"     {return new Token(Token.TokenType.RETURN_TOKEN);}
+"else"       {return new Token(Token.TokenType.ELSE_TOKEN);}
+"void"       {return new Token(Token.TokenType.VOID_TOKEN);}
+"while"      {return new Token(Token.TokenType.WHILE_TOKEN);}
 
-"="          {return Token.TokenType.EQ_TOKEN;}
-"!="         {return Token.TokenType.NEQ_TOKEN;}
-"<"          {return Token.TokenType.LT_TOKEN;}
-">"          {return Token.TokenType.GT_TOKEN;}
-"<="         {return Token.TokenType.LTE_TOKEN;}
-">="         {return Token.TokenType.GTE_TOKEN;}
-"+"          {return Token.TokenType.PLUS_TOKEN;}
-"-"          {return Token.TokenType.MINUS_TOKEN;}
-"*"          {return Token.TokenType.TIMES_TOKEN;}
-"/"          {return Token.TokenType.OVER_TOKEN;}
-"("          {return Token.TokenType.LPAREN_TOKEN;}
-")"          {return Token.TokenType.RPAREN_TOKEN;}
-"["          {return Token.TokenType.LBRACKET_TOKEN;}
-"]"          {return Token.TokenType.RBRACKET_TOKEN;}
-"{"          {return Token.TokenType.LCURLY_TOKEN;}
-"}"          {return Token.TokenType.RCURLY_TOKEN;}
-";"          {return Token.TokenType.SEMI_TOKEN;}
-","          {return Token.TokenType.COMMA_TOKEN;}
-"\0"         {return Token.TokenType.EOF_TOKEN;}
+"="          {return new Token(Token.TokenType.ASSIGN_TOKEN);}
+"=="         {return new Token(Token.TokenType.EQ_TOKEN);}
+"!="         {return new Token(Token.TokenType.NEQ_TOKEN);}
+"<"          {return new Token(Token.TokenType.LT_TOKEN);}
+">"          {return new Token(Token.TokenType.GT_TOKEN);}
+"<="         {return new Token(Token.TokenType.LTE_TOKEN);}
+">="         {return new Token(Token.TokenType.GTE_TOKEN);}
+"+"          {return new Token(Token.TokenType.PLUS_TOKEN);}
+"-"          {return new Token(Token.TokenType.MINUS_TOKEN);}
+"*"          {return new Token(Token.TokenType.TIMES_TOKEN);}
+"/"          {return new Token(Token.TokenType.OVER_TOKEN);}
+"("          {return new Token(Token.TokenType.LPAREN_TOKEN);}
+")"          {return new Token(Token.TokenType.RPAREN_TOKEN);}
+"["          {return new Token(Token.TokenType.LBRACKET_TOKEN);}
+"]"          {return new Token(Token.TokenType.RBRACKET_TOKEN);}
+"{"          {return new Token(Token.TokenType.LCURLY_TOKEN);}
+"}"          {return new Token(Token.TokenType.RCURLY_TOKEN);}
+";"          {return new Token(Token.TokenType.SEMI_TOKEN);}
+","          {return new Token(Token.TokenType.COMMA_TOKEN);}
+"\0"         {return new Token(Token.TokenType.EOF_TOKEN);}
 
-{number}     {return Token.TokenType.NUM_TOKEN;}
-{identifier} {return Token.TokenType.ID_TOKEN;}
+{number}     {return new Token(Token.TokenType.NUM_TOKEN, yytext());}
+{identifier} {return new Token(Token.TokenType.ID_TOKEN, yytext());}
 
 {whitespace} { /* ignore */ }
 {comment}    { /* ignore */ }
 
+{letter}+{digit}+ {throw new LexicalErrorException("Invalid token.");}
+{digit}+{letter}+ {throw new LexicalErrorException("Invalid token.");}
 
 
 
