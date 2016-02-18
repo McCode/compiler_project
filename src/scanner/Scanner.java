@@ -3,6 +3,6 @@ package scanner;
 import java.io.IOException;
 
 public interface Scanner {
-	Token getNextToken() throws LexicalErrorException, IOException;
-    Token viewNextToken();
+	Token getNextToken() throws IOException, LexicalErrorException;
+    Token viewNextToken() throws IOException, LexicalErrorException;
 }

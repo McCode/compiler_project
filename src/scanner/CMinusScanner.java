@@ -132,7 +132,7 @@ public class CMinusScanner implements Scanner {
     					currentToken = new Token(Token.TokenType.SEMI_TOKEN);
     					break;
     				default:
-    					throw new LexicalErrorException();
+    					throw new LexicalErrorException("Invalid token.");
     				}
     			}
     			break;
@@ -195,7 +195,7 @@ public class CMinusScanner implements Scanner {
     				currentToken = new Token(Token.TokenType.NEQ_TOKEN);
     			} else {
     				save = false;
-    				throw new LexicalErrorException();
+    				throw new LexicalErrorException("Invalid token.");
     			}
     			break;
     		case GREATERTHAN:
@@ -222,7 +222,7 @@ public class CMinusScanner implements Scanner {
     		default: 
     			System.out.println("Something didn't go well!");
     			state = StateType.DONE;
-    			throw new LexicalErrorException();
+    			throw new LexicalErrorException("Invalid token.");
 			}
     		
     		if (save == true) {

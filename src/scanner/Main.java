@@ -24,10 +24,10 @@ public class Main {
 		}
 		System.out.println("Opening the file was successful!");
 		
-		CMinusScanner scanner = null;
+		Scanner scanner = null;
 		System.out.println("Scanning...");
 		try {
-			scanner = new CMinusScanner(inputFile);
+			scanner = new CMinusScannerLex(inputFile);
 
 			Token token = scanner.getNextToken();
 			while (token.getTokenType() != Token.TokenType.EOF_TOKEN) {
@@ -48,8 +48,8 @@ public class Main {
 				token = scanner.getNextToken();
 			}
 		} catch (LexicalErrorException|IOException e) {
-			e.printStackTrace();
-			System.out.println("ERROR: Something went wrong while scanning!");
+			//e.printStackTrace();
+			System.out.println("ERROR: " + e.getMessage());
 			System.exit(1);
 		} 
 		System.out.println("Scanning complete! You can find your token list in tokenList.txt.");
