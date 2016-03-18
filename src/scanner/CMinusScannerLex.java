@@ -9,7 +9,7 @@ import java.io.*;
  * <a href="http://www.jflex.de/">JFlex</a> 1.6.1
  * from the specification file <tt>C:/Users/Jonathan/IntelliJProjects/compiler_project/src/scanner/cminus.flex</tt>
  */
-class CMinusScannerLex implements Scanner {
+public class CMinusScannerLex implements Scanner {
 
   /** This character denotes the end of file */
   public static final int YYEOF = -1;
@@ -302,7 +302,7 @@ class CMinusScannerLex implements Scanner {
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  CMinusScannerLex(java.io.Reader in) {
+  public CMinusScannerLex(java.io.Reader in) {
     this.zzReader = in;
   }
 

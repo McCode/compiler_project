@@ -1,6 +1,8 @@
 package parser;
 
+import java.io.Reader;
+
 public interface Parser {
-    Program parse(String file);
+    Program parse() throws ParserException;
     void printTree();
 }

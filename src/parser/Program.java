@@ -5,7 +5,7 @@ import java.util.*;
 public class Program {
     List<Declaration> declarations;
 
-    public Program(List<Declaration> statements) {
-        this.declarations = statements;
+    public Program(List<Declaration> declarations) {
+        this.declarations = declarations;
     }
 }
