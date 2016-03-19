@@ -44,21 +44,21 @@ follow(var-declaration') = {int, void, emtpy}
 follow(fun-declaration') = {int, void, emtpy}
 follow(params) = {)}
 follow(param) = {',' , )}
-follow(type-specifier) = 
-follow(compound-stmt) = 
+follow(type-specifier) = {id}
 follow(local-declarations) = {int, void, num, (, id, ;, if, while, return, {, } }
 follow(statement-list) = { } }
-follow(expression-stmt) = {int, void, num, (, id, ;, if, while, return, {, } }
-follow(selection-stmt) = {int, void, num, (, id, ;, if, while, return, {, } }
-follow(iteration-stmt) = {int, void, num, (, id, ;, if, while, return, {, } }
-follow(return-stmt) = {int, void, num, (, id, ;, if, while, return, {, } }
+follow(compound-stmt)   = {int, void, num, (, id, ;, if, while, return, {, }, else }
+follow(expression-stmt) = {int, void, num, (, id, ;, if, while, return, {, }, else }
+follow(selection-stmt)  = {int, void, num, (, id, ;, if, while, return, {, }, else }
+follow(iteration-stmt)  = {int, void, num, (, id, ;, if, while, return, {, }, else }
+follow(return-stmt)     = {int, void, num, (, id, ;, if, while, return, {, }, else }
 follow(expression) = {;, ), ], ','}
 follow(expression') = {;, ), ], ','}
 follow(expression'') = {;, ), ], ','}
 follow(simple-expression') = {;, ), ], ','}
-follow(additive-expression) = {;, ), ], ','}
+follow(additive-expression) = {;, ), ], <=, <, >, >=, ==, !=, ','}
 follow(additive-expression') = {;, ), ], <=, <, >, >=, ==, !=, ','}
-follow(term) = {;, ), ], +, -, ','}
+follow(term) = {;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
 follow(term') = {;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
 follow(relop) = {(, num, id}
 follow(addop) = {(, num, id}
