@@ -24,18 +24,18 @@ public class CMinusParser implements Parser {
     }
 
     @Override
-    public Program parse() throws ParserException {
+    public Program parse() throws ParserException, IOException, LexicalErrorException {
         List<Declaration> declarations = new ArrayList<>();
 
-        while(s.viewNextToken() != Token.TokenType.EOF_TOKEN) {
+        while(viewNextTokenType() != Token.TokenType.EOF_TOKEN) {
             declarations.add(parseDeclaration());
         }
 
         return new Program(declarations);
     }
 
-    Declaration parseDeclaration() throws ParserException {
-        Token.TokenType type = s.getNextToken();
+    Declaration parseDeclaration() throws ParserException, IOException, LexicalErrorException {
+        Token.TokenType type = s.getNextToken().getTokenType();
         String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
 
         switch(type) {
@@ -56,22 +56,22 @@ public class CMinusParser implements Parser {
         }
     }
 
-    FunctionDeclaration parseFunctionDeclaration(TypeSpecifier type, String id) {
+    FunctionDeclaration parseFunctionDeclaration(TypeSpecifier type, String id) throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LPAREN_TOKEN);
 
         List<Param> params = parseParams();
 
+        CompoundStatement compoundStatement = parseCompoundStatement();
 
-
-        return null;
+        return new FunctionDeclaration(type, id, params, compoundStatement);
     }
 
-    VarDeclaration parseVarDeclaration() {
+    VarDeclaration parseVarDeclaration() throws ParserException, IOException, LexicalErrorException {
         String id = (String)match(Token.TokenType.ID_TOKEN).getTokenData();
         return parseVarDeclaration(id);
     }
 
-    VarDeclaration parseVarDeclaration(String id) throws ParserException {
+    VarDeclaration parseVarDeclaration(String id) throws ParserException, IOException, LexicalErrorException {
         switch(s.viewNextToken().getTokenType()) {
             case SEMI_TOKEN:
                 match(Token.TokenType.SEMI_TOKEN);
@@ -85,7 +85,7 @@ public class CMinusParser implements Parser {
         }
     }
 
-    List<Param> parseParams() {
+    List<Param> parseParams() throws IOException, LexicalErrorException, ParserException {
         List<Param> params = new ArrayList<>();
 
         if(s.viewNextToken().getTokenType() == Token.TokenType.VOID_TOKEN) {
@@ -109,7 +109,7 @@ public class CMinusParser implements Parser {
         return params;
     }
 
-    Param parseParam() {
+    Param parseParam() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.INT_TOKEN);
         String id = (String)match(Token.TokenType.ID_TOKEN).getTokenData();
 
@@ -123,7 +123,7 @@ public class CMinusParser implements Parser {
         return new Param(id, isArray);
     }
 
-    CompoundStatement parseCompoundStatement() {
+    CompoundStatement parseCompoundStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LCURLY_TOKEN);
 
         List<VarDeclaration> varDeclarations = new ArrayList<>();
@@ -141,7 +141,7 @@ public class CMinusParser implements Parser {
         return new CompoundStatement(varDeclarations, statements);
     }
 
-    Statement parseStatement() {
+    Statement parseStatement() throws IOException, LexicalErrorException, ParserException {
         switch(s.viewNextToken().getTokenType()) {
             case IF_TOKEN:
                 return parseIfStatement();
@@ -164,7 +164,7 @@ public class CMinusParser implements Parser {
         return null;
     }
 
-    IfStatement parseIfStatement() {
+    IfStatement parseIfStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.IF_TOKEN);
         match(Token.TokenType.LPAREN_TOKEN);
         Expression expr = parseExpression();
@@ -180,7 +180,7 @@ public class CMinusParser implements Parser {
         }
     }
 
-    WhileStatement parseWhileStatement() {
+    WhileStatement parseWhileStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.WHILE_TOKEN);
         match(Token.TokenType.LPAREN_TOKEN);
         Expression expr = parseExpression();
@@ -189,7 +189,7 @@ public class CMinusParser implements Parser {
         return new WhileStatement(expr, stmt);
     }
 
-    ReturnStatement parseReturnStatement() {
+    ReturnStatement parseReturnStatement() throws IOException, LexicalErrorException, ParserException {
         match(Token.TokenType.RETURN_TOKEN);
         switch(s.viewNextToken().getTokenType()) {
             case NUM_TOKEN:
@@ -203,7 +203,7 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseExpression() {
+    Expression parseExpression() throws ParserException, IOException, LexicalErrorException {
         return parseSimpleExpression();
         /*switch(s.viewNextToken().getTokenType()) {
             case NUM_TOKEN:
@@ -219,7 +219,7 @@ public class CMinusParser implements Parser {
         return null;*/
     }
 
-    Expression parseSimpleExpression() {
+    Expression parseSimpleExpression() throws IOException, LexicalErrorException, ParserException {
         Expression lhs = parseAdditiveExpression();
         switch(viewNextTokenType()) {
             case LTE_TOKEN:
@@ -250,7 +250,7 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseAdditiveExpression() {
+    Expression parseAdditiveExpression() throws IOException, LexicalErrorException, ParserException {
         Expression term = parseTerm();
         switch(viewNextTokenType()) {
             case PLUS_TOKEN:
@@ -275,12 +275,12 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseTerm() {
+    Expression parseTerm() throws ParserException, IOException, LexicalErrorException {
         Expression factor = parseFactor();
         return parseTerm(factor);
     }
 
-    Expression parseTerm(Expression factor) {
+    Expression parseTerm(Expression factor) throws IOException, LexicalErrorException, ParserException {
         switch(viewNextTokenType()) {
             case TIMES_TOKEN:
                 match(Token.TokenType.TIMES_TOKEN);
@@ -304,11 +304,9 @@ public class CMinusParser implements Parser {
             default:
                 throw new ParserException("Unexpected " + getNextTokenTypeAsString());
         }
-
-        return null;
     }
 
-    Expression parseFactor() {
+    Expression parseFactor() throws IOException, LexicalErrorException, ParserException {
         switch(s.viewNextToken().getTokenType()) {
             case LPAREN_TOKEN:
                 match(Token.TokenType.LPAREN_TOKEN);
@@ -346,12 +344,12 @@ public class CMinusParser implements Parser {
         }
     }
 
-    CallExpression parseCall() {
-        String id = match(Token.TokenType.ID_TOKEN);
+    CallExpression parseCall() throws ParserException, IOException, LexicalErrorException {
+        String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
         return parseCall(id);
     }
 
-    CallExpression parseCall(String id) {
+    CallExpression parseCall(String id) throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LPAREN_TOKEN);
         List<Expression> args = parseArgs();
         match(Token.TokenType.RPAREN_TOKEN);
@@ -359,7 +357,7 @@ public class CMinusParser implements Parser {
         return new CallExpression(id, args);
     }
 
-    List<Expression> parseArgs() {
+    List<Expression> parseArgs() throws IOException, LexicalErrorException, ParserException {
         switch(s.viewNextToken().getTokenType()) {
             case RPAREN_TOKEN:
                 return new ArrayList<>();
@@ -378,12 +376,12 @@ public class CMinusParser implements Parser {
         }
     }
 
-    VarExpression parseVar() {
-        String id = match(Token.TokenType.ID_TOKEN);
+    VarExpression parseVar() throws ParserException, IOException, LexicalErrorException {
+        String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
         return parseVar(id);
     }
 
-    VarExpression parseVar(String id) {
+    VarExpression parseVar(String id) throws IOException, LexicalErrorException, ParserException {
         switch(s.viewNextToken().getTokenType()) {
             case LBRACKET_TOKEN:
                 match(Token.TokenType.LBRACKET_TOKEN);
@@ -410,7 +408,7 @@ public class CMinusParser implements Parser {
         }
     }
 
-    NumExpression parseNumExpression() {
+    NumExpression parseNumExpression() throws ParserException, IOException, LexicalErrorException {
         return new NumExpression(Integer.parseInt(match(Token.TokenType.NUM_TOKEN).toString()));
     }
 
@@ -423,11 +421,11 @@ public class CMinusParser implements Parser {
     }
 
     // Helper functions
-    String getNextTokenTypeAsString() {
-        return s.viewNextToken().getTokenType().toString();
+    String getNextTokenTypeAsString() throws IOException, LexicalErrorException {
+        return viewNextTokenType().toString();
     }
 
-    Token.TokenType viewNextTokenType() {
+    Token.TokenType viewNextTokenType() throws IOException, LexicalErrorException {
         return s.viewNextToken().getTokenType();
     }
 }

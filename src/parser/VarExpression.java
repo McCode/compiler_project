@@ -9,8 +9,8 @@ public class VarExpression implements Expression {
         this.expr = null;
     }
 
-    public VarExpression(Expression expr, String id) {
-        this.expr = expr;
+    public VarExpression(String id, Expression expr) {
         this.id = id;
+        this.expr = expr;
     }
 }

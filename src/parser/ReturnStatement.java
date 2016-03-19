@@ -1,13 +1,13 @@
 package parser;
 
 public class ReturnStatement implements Statement {
-    Statement stmt;
+    Expression expr;
 
     public ReturnStatement() {
-        this.stmt = null;
+        this.expr = null;
     }
 
-    public ReturnStatement(Statement stmt) {
-        this.stmt = stmt;
+    public ReturnStatement(Expression expr) {
+        this.expr = expr;
     }
 }
