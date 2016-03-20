@@ -160,8 +160,10 @@ public class CMinusParser implements Parser {
         }
     }
 
-    ExpressionStatement parseExpressionStatement() {
-        return null;
+    ExpressionStatement parseExpressionStatement() throws ParserException, IOException, LexicalErrorException {
+        Expression stmt = parseExpression();
+        match(Token.TokenType.SEMI_TOKEN);
+        return new ExpressionStatement(stmt);
     }
 
     IfStatement parseIfStatement() throws ParserException, IOException, LexicalErrorException {
