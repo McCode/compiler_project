@@ -1,9 +1,9 @@
 package parser;
 
 public class VarDeclaration implements Declaration {
-    final String id;
-    final boolean isArray;
-    final int arrayLength;
+    public final String id;
+    public final boolean isArray;
+    public final int arrayLength;
 
     public VarDeclaration(String id) {
         this.id = id;
