@@ -289,7 +289,7 @@ public class CMinusParser implements Parser {
                 return new BinaryExpression(factor, parseTerm(), BinaryOperation.Times);
             case OVER_TOKEN:
                 match(Token.TokenType.OVER_TOKEN);
-                return new BinaryExpression(factor, parseTerm(), BinaryOperation.Times);
+                return new BinaryExpression(factor, parseTerm(), BinaryOperation.Over);
             case SEMI_TOKEN:
             case RPAREN_TOKEN:
             case RBRACKET_TOKEN:
