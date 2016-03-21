@@ -1,7 +1,7 @@
 package parser;
 
 public class ReturnStatement implements Statement {
-    Expression expr;
+    public final Expression expr;
 
     public ReturnStatement() {
         this.expr = null;

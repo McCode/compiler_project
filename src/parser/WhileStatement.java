@@ -1,8 +1,8 @@
 package parser;
 
 public class WhileStatement implements Statement {
-    Expression expr;
-    Statement stmt;
+    public final Expression expr;
+    public final Statement stmt;
 
     public WhileStatement(Expression expr, Statement stmt) {
         this.expr = expr;

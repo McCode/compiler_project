@@ -221,6 +221,16 @@ public class CMinusParser implements Parser {
         return null;*/
     }
 
+    Expression parseExpressionPrime() {
+        // TODO: Implement
+        return null;
+    }
+
+    Expression parseExpressionDoublePrime() {
+        // TODO: Implement
+        return null;
+    }
+
     Expression parseSimpleExpression() throws IOException, LexicalErrorException, ParserException {
         Expression lhs = parseAdditiveExpression();
         switch(viewNextTokenType()) {

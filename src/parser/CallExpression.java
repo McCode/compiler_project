@@ -3,8 +3,8 @@ package parser;
 import java.util.List;
 
 public class CallExpression implements Expression {
-    String id;
-    List<Expression> args;
+    final String id;
+    final List<Expression> args;
 
     public CallExpression(String id, List<Expression> args) {
         this.id = id;

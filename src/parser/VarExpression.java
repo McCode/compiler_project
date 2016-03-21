@@ -1,8 +1,8 @@
 package parser;
 
 public class VarExpression implements Expression {
-    String id;
-    Expression expr;
+    public final String id;
+    public final Expression expr;
 
     public VarExpression(String id) {
         this.id = id;

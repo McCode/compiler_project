@@ -1,9 +1,9 @@
 package parser;
 
 public class BinaryExpression implements Expression {
-    Expression lhs;
-    Expression rhs;
-    BinaryOperation operation;
+    final Expression lhs;
+    final Expression rhs;
+    final BinaryOperation operation;
 
     public BinaryExpression(Expression lhs, Expression rhs, BinaryOperation operation) {
         this.lhs = lhs;
