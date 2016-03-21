@@ -296,7 +296,7 @@ public class CMinusParser implements Parser {
     }
 
     Expression parseSimpleExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
-        Expression lhs = parseAdditiveExpression();
+        Expression lhs = parseAdditiveExpression(factor);
         switch(viewNextTokenType()) {
             case LTE_TOKEN:
                 match(Token.TokenType.LTE_TOKEN);
