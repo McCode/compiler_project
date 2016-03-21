@@ -10,4 +10,11 @@ public class BinaryExpression implements Expression {
         this.rhs = rhs;
         this.operation = operation;
     }
+
+    @Override
+    public void printTree(int indentLevel) {
+        printlnWithIndentation(indentLevel, "BinaryExpression: " + operation.toString());
+        lhs.printTree(indentLevel + 1);
+        rhs.printTree(indentLevel + 1);
+    }
 }

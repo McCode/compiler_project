@@ -8,4 +8,11 @@ public class WhileStatement implements Statement {
         this.expr = expr;
         this.stmt = stmt;
     }
+
+    @Override
+    public void printTree(int indentLevel) {
+        printlnWithIndentation(indentLevel, "WhileStatement");
+        expr.printTree(indentLevel + 1);
+        stmt.printTree(indentLevel + 1);
+    }
 }

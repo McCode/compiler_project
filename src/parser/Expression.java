@@ -1,4 +1,3 @@
 package parser;
 
-public interface Expression {
-}
+public interface Expression extends PrintableAstNode {}

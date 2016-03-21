@@ -14,4 +14,14 @@ public class IfStatement implements Statement {
         this.thenStmt = thenStmt;
         this.elseStmt = elseStmt;
     }
+
+    @Override
+    public void printTree(int indentLevel) {
+        printlnWithIndentation(indentLevel, "IfStatement");
+        expr.printTree(indentLevel + 1);
+        thenStmt.printTree(indentLevel + 1);
+        if(elseStmt != null) {
+            elseStmt.printTree(indentLevel + 1);
+        }
+    }
 }

@@ -13,4 +13,15 @@ public class VarExpression implements Expression {
         this.id = id;
         this.expr = expr;
     }
+
+    @Override
+    public void printTree(int indentLevel) {
+        printlnWithIndentation(indentLevel, "VarExpression");
+        if(this.expr == null) {
+            printlnWithIndentation(indentLevel + 1, id);
+        } else {
+            printlnWithIndentation(indentLevel + 1, id + "[]");
+            expr.printTree(indentLevel + 1);
+        }
+    }
 }

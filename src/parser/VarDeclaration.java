@@ -16,4 +16,14 @@ public class VarDeclaration implements Declaration {
         isArray = true;
         this.arrayLength = arrayLength;
     }
+
+    @Override
+    public void printTree(int indentLevel) {
+        printlnWithIndentation(indentLevel, "VarDeclaration");
+        if(isArray) {
+            printlnWithIndentation(indentLevel + 1, id + "[" + Integer.toString(arrayLength) + "]");
+        } else {
+            printlnWithIndentation(indentLevel + 1, id);
+        }
+    }
 }

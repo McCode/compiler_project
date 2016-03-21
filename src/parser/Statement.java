@@ -1,4 +1,3 @@
 package parser;
 
-public interface Statement {
-}
+public interface Statement extends PrintableAstNode {}

@@ -23,8 +23,8 @@ public class Main {
         System.out.println("Parsing...");
         try {
             Parser parser = new CMinusParser(inputFile);
-            Program program = parser.parse();
-            // todo: print the parse tree
+            parser.parse();
+            parser.printTree();
         } catch(IOException|LexicalErrorException|ParserException e) {
             e.printStackTrace();
         }

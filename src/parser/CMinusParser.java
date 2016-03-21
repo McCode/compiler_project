@@ -8,6 +8,7 @@ import java.util.*;
 
 public class CMinusParser implements Parser {
     scanner.Scanner s;
+    Program p;
 
     public CMinusParser(Reader file) {
         s = new CMinusScannerLex(file);
@@ -498,7 +499,7 @@ public class CMinusParser implements Parser {
 
     @Override
     public void printTree() {
-
+        p.printTree(0);
     }
 
     // Helper functions
