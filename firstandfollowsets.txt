@@ -17,11 +17,11 @@ first(selection-stmt) = {if}
 first(iteration-stmt) = {while}
 first(return-stmt) = {return}
 first(expression) = {num, (, id}
-first(expression') = {=, [, (, *, /, empty}
-first(expression'') = {=, /, *, empty}
-first(simple-expression') = {*, /, empty}
+first(expression') = {=, [, (, <=, <, >, >=, ==, !=, +, -, *, /, empty}
+first(expression'') = {=, <=, <, >, >=, ==, !=, +, -, /, *, empty}
+first(simple-expression') = {<=, <, >, >=, ==, !=, +, -, *, /, empty}
 first(additive-expression) = {(, num, id}
-first(additive-expression') = {*, /, empty}
+first(additive-expression') = {+, -, *, /, empty}
 first(term) = {(, num, id}
 first(term') = {*, /, empty}
 first(relop) = {<=, <, >, >=, ==, !=}
@@ -65,7 +65,7 @@ follow(addop) = {(, num, id}
 follow(mulop) = {(, num, id}
 follow(factor) = {*, /, ;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
 follow(factor') = {*, /, ;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
-follow(var') = {*, /, ;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
+follow(var') = {*, /, ;, ), ], ',', <=, <, >, >=, ==, !=, +, -, =}
 follow(call') = {*, /, ;, ), ], ',', <=, <, >, >=, ==, !=, +, -}
 follow(args) = {)}
 follow(arg-list) = {num, (, id, )}

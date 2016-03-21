@@ -15,5 +15,8 @@ public enum BinaryOperation {
 
     // mulop
     Times,
-    Over
+    Over,
+
+    // assign
+    Assign
 }

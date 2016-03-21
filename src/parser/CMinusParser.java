@@ -161,9 +161,21 @@ public class CMinusParser implements Parser {
     }
 
     ExpressionStatement parseExpressionStatement() throws ParserException, IOException, LexicalErrorException {
-        Expression stmt = parseExpression();
+        Expression expr = null;
+        switch(viewNextTokenType()) {
+            case NUM_TOKEN:
+            case ID_TOKEN:
+            case LPAREN_TOKEN:
+                expr = parseExpression();
+                break;
+            case SEMI_TOKEN:
+                break;
+            default:
+                throw new ParserException("Expected expression statement, found " + getNextTokenTypeAsString());
+        }
+
         match(Token.TokenType.SEMI_TOKEN);
-        return new ExpressionStatement(stmt);
+        return new ExpressionStatement(expr);
     }
 
     IfStatement parseIfStatement() throws ParserException, IOException, LexicalErrorException {
@@ -206,32 +218,84 @@ public class CMinusParser implements Parser {
     }
 
     Expression parseExpression() throws ParserException, IOException, LexicalErrorException {
-        return parseSimpleExpression();
-        /*switch(s.viewNextToken().getTokenType()) {
+        switch(viewNextTokenType()) {
             case NUM_TOKEN:
-                NumExpression num = parseNumExpression();
-                break;
             case LPAREN_TOKEN:
-                break;
+                return parseSimpleExpression();
             case ID_TOKEN:
-                break;
+                String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
+                return parseExpression(id);
             default:
-                throw new ParserException("Expression expected, found " + getNextTokenTypeAsString());
+                throw new ParserException("Expected expression, found " + getNextTokenTypeAsString());
         }
-        return null;*/
     }
 
-    Expression parseExpressionPrime() {
-        // TODO: Implement
-        return null;
+    // expression'
+    Expression parseExpression(String id) throws ParserException, IOException, LexicalErrorException {
+        VarExpression var;
+        switch(viewNextTokenType()) {
+            case ASSIGN_TOKEN:
+                var = parseVar(id);
+                match(Token.TokenType.EQ_TOKEN);
+                Expression expr = parseExpression();
+                return new BinaryExpression(var, expr, BinaryOperation.Assign);
+            case LBRACKET_TOKEN:
+                var = parseVar(id);
+                return parseExpression(var);
+            case LPAREN_TOKEN:
+                CallExpression call = parseCall(id);
+                return parseSimpleExpression(call);
+            case LTE_TOKEN:
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case GTE_TOKEN:
+            case EQ_TOKEN:
+            case NEQ_TOKEN:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case TIMES_TOKEN:
+            case OVER_TOKEN:
+                var = new VarExpression(id);
+                return parseSimpleExpression(var);
+            default:
+                throw new ParserException("Expected expression continuation, found " + getNextTokenTypeAsString());
+        }
     }
 
-    Expression parseExpressionDoublePrime() {
-        // TODO: Implement
-        return null;
+    // expression''
+    Expression parseExpression(VarExpression var) throws IOException, LexicalErrorException, ParserException {
+        switch(viewNextTokenType()) {
+            case ASSIGN_TOKEN:
+                match(Token.TokenType.ASSIGN_TOKEN);
+                Expression expr = parseExpression();
+                return new BinaryExpression(var, expr, BinaryOperation.Assign);
+            case LTE_TOKEN:
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case GTE_TOKEN:
+            case EQ_TOKEN:
+            case NEQ_TOKEN:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case TIMES_TOKEN:
+            case OVER_TOKEN:
+                return parseSimpleExpression(var);
+            case RPAREN_TOKEN:
+            case SEMI_TOKEN:
+            case RBRACKET_TOKEN:
+            case COMMA_TOKEN:
+                // the end of the expression
+                return var;
+            default:
+                throw new ParserException("Expected expression continuation, found " + getNextTokenTypeAsString());
+        }
     }
 
-    Expression parseSimpleExpression() throws IOException, LexicalErrorException, ParserException {
+    Expression parseSimpleExpression() throws ParserException, IOException, LexicalErrorException {
+        return parseSimpleExpression(parseFactor());
+    }
+
+    Expression parseSimpleExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
         Expression lhs = parseAdditiveExpression();
         switch(viewNextTokenType()) {
             case LTE_TOKEN:
@@ -262,8 +326,12 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseAdditiveExpression() throws IOException, LexicalErrorException, ParserException {
-        Expression term = parseTerm();
+    Expression parseAdditiveExpression() throws ParserException, IOException, LexicalErrorException {
+        return parseAdditiveExpression(parseFactor());
+    }
+
+    Expression parseAdditiveExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
+        Expression term = parseTerm(factor);
         switch(viewNextTokenType()) {
             case PLUS_TOKEN:
                 match(Token.TokenType.PLUS_TOKEN);
@@ -414,6 +482,7 @@ public class CMinusParser implements Parser {
             case NEQ_TOKEN:
             case PLUS_TOKEN:
             case MINUS_TOKEN:
+            case ASSIGN_TOKEN:
                 return new VarExpression(id);
             default:
                 throw new ParserException("Unexpected token: " + getNextTokenTypeAsString());
