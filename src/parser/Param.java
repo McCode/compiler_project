@@ -12,10 +12,9 @@ public class Param implements PrintableAstNode {
     @Override
     public void printTree(int indentLevel) {
         printlnWithIndentation(indentLevel, "Param");
+        printlnWithIndentation(indentLevel + 1, id);
         if(isArray) {
-            printlnWithIndentation(indentLevel + 1, id + "[]");
-        } else {
-            printlnWithIndentation(indentLevel + 1, id);
+            printlnWithIndentation(indentLevel + 1, "[]");
         }
     }
 }

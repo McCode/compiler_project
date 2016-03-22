@@ -20,10 +20,9 @@ public class VarDeclaration implements Declaration {
     @Override
     public void printTree(int indentLevel) {
         printlnWithIndentation(indentLevel, "VarDeclaration");
+        printlnWithIndentation(indentLevel + 1, "Id: " + id);
         if(isArray) {
-            printlnWithIndentation(indentLevel + 1, id + "[" + Integer.toString(arrayLength) + "]");
-        } else {
-            printlnWithIndentation(indentLevel + 1, id);
+            printlnWithIndentation(indentLevel + 1, "Array length: " + arrayLength);
         }
     }
 }

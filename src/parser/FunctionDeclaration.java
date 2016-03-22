@@ -20,10 +20,10 @@ public class FunctionDeclaration implements Declaration {
         printlnWithIndentation(indentLevel, "FunctionDeclaration");
 
         // print the type
-        printlnWithIndentation(indentLevel + 1, type.toString().toLowerCase());
+        printlnWithIndentation(indentLevel + 1, "Type: " + type.toString().toLowerCase());
 
         // print the id
-        printlnWithIndentation(indentLevel + 1, id);
+        printlnWithIndentation(indentLevel + 1, "Id: " + id);
 
         // print the params
         printlnWithIndentation(indentLevel + 1, "Params");

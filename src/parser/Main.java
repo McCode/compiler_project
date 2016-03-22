@@ -20,8 +20,10 @@ public class Main {
             Parser parser = new CMinusParser(inputFile);
             parser.parse();
             parser.printTree();
-        } catch(IOException|LexicalErrorException|ParserException e) {
+        } catch(IOException|LexicalErrorException e) {
             e.printStackTrace();
+        } catch(ParserException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

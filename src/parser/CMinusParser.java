@@ -7,23 +7,23 @@ import java.io.Reader;
 import java.util.*;
 
 public class CMinusParser implements Parser {
-    scanner.Scanner s;
-    Program p;
+    private final scanner.Scanner s;
+
+    // Stores the program produced by parse() so that printTree() works
+    private Program p;
 
     public CMinusParser(Reader file) {
         s = new CMinusScannerLex(file);
     }
 
 
-    Token match(Token.TokenType tokenType) throws ParserException, IOException, LexicalErrorException {
-        Token t = s.getNextToken();
-        if(t.getTokenType() != tokenType) {
-            throw new ParserException("Expected " + tokenType.toString() + ", found " + getNextTokenTypeAsString());
-        } else {
-            return t;
-        }
+    @Override
+    public void printTree() {
+        p.printTree(0);
     }
 
+    // Creates an AST from the scanner given to the constructor.
+    // This could also be called parseProgram(), as it parses a program.
     @Override
     public Program parse() throws ParserException, IOException, LexicalErrorException {
         List<Declaration> declarations = new ArrayList<>();
@@ -32,11 +32,22 @@ public class CMinusParser implements Parser {
             declarations.add(parseDeclaration());
         }
 
-        return new Program(declarations);
+        return p = new Program(declarations);
     }
 
-    Declaration parseDeclaration() throws ParserException, IOException, LexicalErrorException {
+    // Parses both var declarations and function declarations.
+    private Declaration parseDeclaration() throws ParserException, IOException, LexicalErrorException {
         Token.TokenType type = s.getNextToken().getTokenType();
+
+        // We had to switch over the type before we switch over it again so that
+        // any errors encountered in the first token are reported before the match() below
+        switch(type) {
+            case INT_TOKEN:
+            case VOID_TOKEN:
+                break;
+            default:
+                throw new ParserException("Expected type, found " + type);
+        }
         String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
 
         switch(type) {
@@ -57,22 +68,38 @@ public class CMinusParser implements Parser {
         }
     }
 
-    FunctionDeclaration parseFunctionDeclaration(TypeSpecifier type, String id) throws ParserException, IOException, LexicalErrorException {
+    /**
+     * Parses a function declaration given a return type and a function name.
+     * @param type The return type of the function
+     * @param id   The name of the function
+     */
+    private FunctionDeclaration parseFunctionDeclaration(TypeSpecifier type, String id) throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LPAREN_TOKEN);
 
         List<Param> params = parseParams();
+
+        match(Token.TokenType.RPAREN_TOKEN);
 
         CompoundStatement compoundStatement = parseCompoundStatement();
 
         return new FunctionDeclaration(type, id, params, compoundStatement);
     }
 
-    VarDeclaration parseVarDeclaration() throws ParserException, IOException, LexicalErrorException {
+    /*
+     * Parses a var declaration, without being given the id.
+     * It just matches INT and an ID, and passes those to parseVarDeclaration(String).
+     */
+    private VarDeclaration parseVarDeclaration() throws ParserException, IOException, LexicalErrorException {
+        match(Token.TokenType.INT_TOKEN);
         String id = (String)match(Token.TokenType.ID_TOKEN).getTokenData();
         return parseVarDeclaration(id);
     }
 
-    VarDeclaration parseVarDeclaration(String id) throws ParserException, IOException, LexicalErrorException {
+    /**
+     * Parses a ver declaration given the string name of the variable.
+     * @param id The name of the variable
+     */
+    private VarDeclaration parseVarDeclaration(String id) throws ParserException, IOException, LexicalErrorException {
         switch(s.viewNextToken().getTokenType()) {
             case SEMI_TOKEN:
                 match(Token.TokenType.SEMI_TOKEN);
@@ -80,19 +107,24 @@ public class CMinusParser implements Parser {
             case LBRACKET_TOKEN:
                 match(Token.TokenType.LBRACKET_TOKEN);
                 int num = Integer.decode((String)match(Token.TokenType.NUM_TOKEN).getTokenData());
+                match(Token.TokenType.RBRACKET_TOKEN);
+                match(Token.TokenType.SEMI_TOKEN);
                 return new VarDeclaration(id, num);
             default:
                 throw new ParserException("Expected [ or ;");
         }
     }
 
-    List<Param> parseParams() throws IOException, LexicalErrorException, ParserException {
+    // Parses parameters in a function declaration.
+    private List<Param> parseParams() throws IOException, LexicalErrorException, ParserException {
         List<Param> params = new ArrayList<>();
 
-        if(s.viewNextToken().getTokenType() == Token.TokenType.VOID_TOKEN) {
+        if(viewNextTokenType() == Token.TokenType.VOID_TOKEN) {
+            // If the first token is a VOID, we pass back an empty param list.
             match(Token.TokenType.VOID_TOKEN);
         } else {
-            while(s.viewNextToken().getTokenType() != Token.TokenType.RPAREN_TOKEN) {
+            // Parse params until we hit a right paren.
+            while(viewNextTokenType() != Token.TokenType.RPAREN_TOKEN) {
                 params.add(parseParam());
 
                 switch(s.viewNextToken().getTokenType()) {
@@ -110,12 +142,16 @@ public class CMinusParser implements Parser {
         return params;
     }
 
-    Param parseParam() throws ParserException, IOException, LexicalErrorException {
+    // Parses a single parameter in a function declaration
+    private Param parseParam() throws ParserException, IOException, LexicalErrorException {
+        // All params are ints
         match(Token.TokenType.INT_TOKEN);
         String id = (String)match(Token.TokenType.ID_TOKEN).getTokenData();
 
         boolean isArray = false;
-        if(s.viewNextToken().getTokenType() == Token.TokenType.LBRACKET_TOKEN) {
+
+        // Check to see if it's an array parameter
+        if(viewNextTokenType() == Token.TokenType.LBRACKET_TOKEN) {
             match(Token.TokenType.LBRACKET_TOKEN);
             match(Token.TokenType.RBRACKET_TOKEN);
             isArray = true;
@@ -124,16 +160,16 @@ public class CMinusParser implements Parser {
         return new Param(id, isArray);
     }
 
-    CompoundStatement parseCompoundStatement() throws ParserException, IOException, LexicalErrorException {
+    private CompoundStatement parseCompoundStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LCURLY_TOKEN);
 
         List<VarDeclaration> varDeclarations = new ArrayList<>();
-        while(s.viewNextToken().getTokenType() == Token.TokenType.INT_TOKEN) {
+        while(viewNextTokenType() == Token.TokenType.INT_TOKEN) {
             varDeclarations.add(parseVarDeclaration());
         }
 
         List<Statement> statements = new ArrayList<>();
-        while(s.viewNextToken().getTokenType() != Token.TokenType.RCURLY_TOKEN) {
+        while(viewNextTokenType() != Token.TokenType.RCURLY_TOKEN) {
             statements.add(parseStatement());
         }
 
@@ -142,8 +178,9 @@ public class CMinusParser implements Parser {
         return new CompoundStatement(varDeclarations, statements);
     }
 
-    Statement parseStatement() throws IOException, LexicalErrorException, ParserException {
-        switch(s.viewNextToken().getTokenType()) {
+    // Decides what kind of statement it's looking at and passes it along to the right specific method
+    private Statement parseStatement() throws IOException, LexicalErrorException, ParserException {
+        switch(viewNextTokenType()) {
             case IF_TOKEN:
                 return parseIfStatement();
             case WHILE_TOKEN:
@@ -155,13 +192,15 @@ public class CMinusParser implements Parser {
             case NUM_TOKEN:
             case LPAREN_TOKEN:
             case ID_TOKEN:
+            case SEMI_TOKEN:
                 return parseExpressionStatement();
             default:
-                throw new ParserException("Unexpected " + getNextTokenTypeAsString());
+                throw new ParserException("Expected statement, got " + getNextTokenTypeAsString());
         }
     }
 
-    ExpressionStatement parseExpressionStatement() throws ParserException, IOException, LexicalErrorException {
+    // Parses an expression-statement, which may or may not have an expression.
+    private ExpressionStatement parseExpressionStatement() throws ParserException, IOException, LexicalErrorException {
         Expression expr = null;
         switch(viewNextTokenType()) {
             case NUM_TOKEN:
@@ -170,6 +209,7 @@ public class CMinusParser implements Parser {
                 expr = parseExpression();
                 break;
             case SEMI_TOKEN:
+                // A single semicolon is an ExpressionStatement with no expression.
                 break;
             default:
                 throw new ParserException("Expected expression statement, found " + getNextTokenTypeAsString());
@@ -179,46 +219,59 @@ public class CMinusParser implements Parser {
         return new ExpressionStatement(expr);
     }
 
-    IfStatement parseIfStatement() throws ParserException, IOException, LexicalErrorException {
+    // Parses an if statement, which may or may not have an else statement.
+    private IfStatement parseIfStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.IF_TOKEN);
         match(Token.TokenType.LPAREN_TOKEN);
         Expression expr = parseExpression();
         match(Token.TokenType.RPAREN_TOKEN);
 
         Statement stmt = parseStatement();
+        Statement elseStmt = null;
 
-        if(s.viewNextToken().getTokenType() == Token.TokenType.ELSE_TOKEN) {
+        if(viewNextTokenType() == Token.TokenType.ELSE_TOKEN) {
             match(Token.TokenType.ELSE_TOKEN);
-            return new IfStatement(expr, stmt, parseStatement());
-        } else {
-            return new IfStatement(expr, stmt);
+            elseStmt = parseStatement();
         }
+
+        return new IfStatement(expr, stmt, elseStmt);
     }
 
-    WhileStatement parseWhileStatement() throws ParserException, IOException, LexicalErrorException {
+    private WhileStatement parseWhileStatement() throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.WHILE_TOKEN);
+
         match(Token.TokenType.LPAREN_TOKEN);
         Expression expr = parseExpression();
         match(Token.TokenType.RPAREN_TOKEN);
+
         Statement stmt = parseStatement();
+
         return new WhileStatement(expr, stmt);
     }
 
-    ReturnStatement parseReturnStatement() throws IOException, LexicalErrorException, ParserException {
+    // Parses a return statement, which may or may not have an expression.
+    private ReturnStatement parseReturnStatement() throws IOException, LexicalErrorException, ParserException {
         match(Token.TokenType.RETURN_TOKEN);
         switch(s.viewNextToken().getTokenType()) {
             case NUM_TOKEN:
             case ID_TOKEN:
             case LPAREN_TOKEN:
-                return new ReturnStatement(parseExpression());
+                Expression expr = parseExpression();
+                match(Token.TokenType.SEMI_TOKEN);
+                return new ReturnStatement(expr);
             case SEMI_TOKEN:
+                match(Token.TokenType.SEMI_TOKEN);
                 return new ReturnStatement();
             default:
                 throw new ParserException("Expression or semicolon expected, found " + getNextTokenTypeAsString());
         }
     }
 
-    Expression parseExpression() throws ParserException, IOException, LexicalErrorException {
+    /* This corresponds to expression in the grammar.
+     * Parses an expression.
+     * Treats an ID as a special case in order to handle assignment.
+     */
+    private Expression parseExpression() throws ParserException, IOException, LexicalErrorException {
         switch(viewNextTokenType()) {
             case NUM_TOKEN:
             case LPAREN_TOKEN:
@@ -231,13 +284,15 @@ public class CMinusParser implements Parser {
         }
     }
 
-    // expression'
-    Expression parseExpression(String id) throws ParserException, IOException, LexicalErrorException {
+    /* This corresponds to expression' in the grammar.
+     * This handles the special case of an expression starting with an id.
+     */
+    private Expression parseExpression(String id) throws ParserException, IOException, LexicalErrorException {
         VarExpression var;
         switch(viewNextTokenType()) {
             case ASSIGN_TOKEN:
                 var = parseVar(id);
-                match(Token.TokenType.EQ_TOKEN);
+                match(Token.TokenType.ASSIGN_TOKEN);
                 Expression expr = parseExpression();
                 return new BinaryExpression(var, expr, BinaryOperation.Assign);
             case LBRACKET_TOKEN:
@@ -256,6 +311,10 @@ public class CMinusParser implements Parser {
             case MINUS_TOKEN:
             case TIMES_TOKEN:
             case OVER_TOKEN:
+            case SEMI_TOKEN:
+            case COMMA_TOKEN:
+            case RPAREN_TOKEN:
+            case RBRACKET_TOKEN:
                 var = new VarExpression(id);
                 return parseSimpleExpression(var);
             default:
@@ -263,8 +322,10 @@ public class CMinusParser implements Parser {
         }
     }
 
-    // expression''
-    Expression parseExpression(VarExpression var) throws IOException, LexicalErrorException, ParserException {
+    /* This corresponds to expression'' in the grammar.
+     * This handles the special case of an expression starting with an array indexing.
+     */
+    private Expression parseExpression(VarExpression var) throws IOException, LexicalErrorException, ParserException {
         switch(viewNextTokenType()) {
             case ASSIGN_TOKEN:
                 match(Token.TokenType.ASSIGN_TOKEN);
@@ -292,11 +353,15 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseSimpleExpression() throws ParserException, IOException, LexicalErrorException {
+    // Parses a simple-expression without being provided a factor.
+    private Expression parseSimpleExpression() throws ParserException, IOException, LexicalErrorException {
         return parseSimpleExpression(parseFactor());
     }
 
-    Expression parseSimpleExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
+    // Parses a simple-expression given a factor, which may be the whole left side or only a part of it.
+    // Unlike the other parse*Expression methods, a simple-expression can't be stringed along.
+    // It has only two sides, and sometimes only one.
+    private Expression parseSimpleExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
         Expression lhs = parseAdditiveExpression(factor);
         switch(viewNextTokenType()) {
             case LTE_TOKEN:
@@ -327,69 +392,116 @@ public class CMinusParser implements Parser {
         }
     }
 
-    Expression parseAdditiveExpression() throws ParserException, IOException, LexicalErrorException {
+    // Parses an additive-expression without being given a factor.
+    private Expression parseAdditiveExpression() throws ParserException, IOException, LexicalErrorException {
         return parseAdditiveExpression(parseFactor());
     }
 
-    Expression parseAdditiveExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
-        Expression term = parseTerm(factor);
-        switch(viewNextTokenType()) {
-            case PLUS_TOKEN:
-                match(Token.TokenType.PLUS_TOKEN);
-                return new BinaryExpression(term, parseAdditiveExpression(), BinaryOperation.Plus);
-            case MINUS_TOKEN:
-                match(Token.TokenType.MINUS_TOKEN);
-                return new BinaryExpression(term, parseAdditiveExpression(), BinaryOperation.Minus);
-            case SEMI_TOKEN:
-            case RPAREN_TOKEN:
-            case RBRACKET_TOKEN:
-            case COMMA_TOKEN:
-            case LTE_TOKEN:
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case GTE_TOKEN:
-            case EQ_TOKEN:
-            case NEQ_TOKEN:
-                return term;
-            default:
-                throw new ParserException("Unexpected " + getNextTokenTypeAsString());
+    /**
+     * Parses an additive-expression given a factor, which may be the entire left side
+     * or only a part of it.
+     * Since an additive-expression can have multiple addops, it will keep parsing terms
+     * and adding them to the tree, moving the tree down and to the left.
+     * This ensures left-associativity.
+     */
+    private Expression parseAdditiveExpression(Expression factor) throws IOException, LexicalErrorException, ParserException {
+        // Every time we find another addop and another term, we will construct
+        // a new BinaryExpression using the current lhs and the new term, and put the result in lhs.
+        Expression lhs = parseTerm(factor);
+        Expression rhs;
+        // Since it is cumbersome to compare against two token types in the while loop
+        // and then compare against them again in the switch, we opted to just loop until we return.
+        while(true) {
+            switch(viewNextTokenType()) {
+                case PLUS_TOKEN:
+                    match(Token.TokenType.PLUS_TOKEN);
+                    rhs = parseTerm();
+                    lhs = new BinaryExpression(lhs, rhs, BinaryOperation.Plus);
+                    break;
+                case MINUS_TOKEN:
+                    match(Token.TokenType.MINUS_TOKEN);
+                    rhs = parseTerm();
+                    lhs = new BinaryExpression(lhs, rhs, BinaryOperation.Minus);
+                    break;
+                case SEMI_TOKEN:
+                case RPAREN_TOKEN:
+                case RBRACKET_TOKEN:
+                case COMMA_TOKEN:
+                case LTE_TOKEN:
+                case LT_TOKEN:
+                case GT_TOKEN:
+                case GTE_TOKEN:
+                case EQ_TOKEN:
+                case NEQ_TOKEN:
+                    return lhs;
+                default:
+                    throw new ParserException("Unexpected " + getNextTokenTypeAsString());
+            }
         }
     }
 
-    Expression parseTerm() throws ParserException, IOException, LexicalErrorException {
+    // Parses a term without being given a factor.
+    private Expression parseTerm() throws ParserException, IOException, LexicalErrorException {
         Expression factor = parseFactor();
         return parseTerm(factor);
     }
 
-    Expression parseTerm(Expression factor) throws IOException, LexicalErrorException, ParserException {
-        switch(viewNextTokenType()) {
-            case TIMES_TOKEN:
-                match(Token.TokenType.TIMES_TOKEN);
-                return new BinaryExpression(factor, parseTerm(), BinaryOperation.Times);
-            case OVER_TOKEN:
-                match(Token.TokenType.OVER_TOKEN);
-                return new BinaryExpression(factor, parseTerm(), BinaryOperation.Over);
-            case SEMI_TOKEN:
-            case RPAREN_TOKEN:
-            case RBRACKET_TOKEN:
-            case COMMA_TOKEN:
-            case LTE_TOKEN:
-            case LT_TOKEN:
-            case GT_TOKEN:
-            case GTE_TOKEN:
-            case EQ_TOKEN:
-            case NEQ_TOKEN:
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
-                return factor;
-            default:
-                throw new ParserException("Unexpected " + getNextTokenTypeAsString());
+    /**
+     * Parses a term given a factor, which may be the entire left side
+     * or only a part of it.
+     * Since an additive-expression can have multiple mulops, it will keep parsing terms
+     * and adding them to the tree, moving the tree down and to the left.
+     * This ensures left-associativity.
+     */
+    private Expression parseTerm(Expression factor) throws IOException, LexicalErrorException, ParserException {
+        // Every time we find another mulop and another factor, we will construct
+        // a new BinaryExpression using the current lhs and the new factor, and put the result in lhs.
+        Expression lhs = factor;
+        Expression rhs;
+        // Since it is cumbersome to compare against two token types in the while loop
+        // and then compare against them again in the switch, we opted to just loop until we return.
+        while(true) {
+            switch(viewNextTokenType()) {
+                case TIMES_TOKEN:
+                    match(Token.TokenType.TIMES_TOKEN);
+                    rhs = parseFactor();
+                    lhs = new BinaryExpression(lhs, rhs, BinaryOperation.Times);
+                    break;
+                case OVER_TOKEN:
+                    match(Token.TokenType.OVER_TOKEN);
+                    rhs = parseFactor();
+                    lhs = new BinaryExpression(lhs, rhs, BinaryOperation.Over);
+                    break;
+                case SEMI_TOKEN:
+                case RPAREN_TOKEN:
+                case RBRACKET_TOKEN:
+                case COMMA_TOKEN:
+                case LTE_TOKEN:
+                case LT_TOKEN:
+                case GT_TOKEN:
+                case GTE_TOKEN:
+                case EQ_TOKEN:
+                case NEQ_TOKEN:
+                case PLUS_TOKEN:
+                case MINUS_TOKEN:
+                    return lhs;
+                default:
+                    throw new ParserException("Unexpected " + getNextTokenTypeAsString());
+            }
         }
     }
 
-    Expression parseFactor() throws IOException, LexicalErrorException, ParserException {
+    /* Parses a factor, which may be:
+     *      a num
+     *      a parenthetical expression
+     *      a call
+     *      a var
+     *      an indexed array
+     */
+    private Expression parseFactor() throws IOException, LexicalErrorException, ParserException {
         switch(s.viewNextToken().getTokenType()) {
             case LPAREN_TOKEN:
+                // it's a parenthetical expression
                 match(Token.TokenType.LPAREN_TOKEN);
                 Expression expr = parseExpression();
                 match(Token.TokenType.RPAREN_TOKEN);
@@ -397,6 +509,7 @@ public class CMinusParser implements Parser {
             case NUM_TOKEN:
                 return parseNumExpression();
             case ID_TOKEN:
+                // it could be a var, an indexed array, or a call
                 String id = (String)match(Token.TokenType.ID_TOKEN).getTokenData();
                 switch(s.viewNextToken().getTokenType()) {
                     case LPAREN_TOKEN:
@@ -425,12 +538,8 @@ public class CMinusParser implements Parser {
         }
     }
 
-    CallExpression parseCall() throws ParserException, IOException, LexicalErrorException {
-        String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
-        return parseCall(id);
-    }
-
-    CallExpression parseCall(String id) throws ParserException, IOException, LexicalErrorException {
+    // parses a call, given an id
+    private CallExpression parseCall(String id) throws ParserException, IOException, LexicalErrorException {
         match(Token.TokenType.LPAREN_TOKEN);
         List<Expression> args = parseArgs();
         match(Token.TokenType.RPAREN_TOKEN);
@@ -438,16 +547,19 @@ public class CMinusParser implements Parser {
         return new CallExpression(id, args);
     }
 
-    List<Expression> parseArgs() throws IOException, LexicalErrorException, ParserException {
-        switch(s.viewNextToken().getTokenType()) {
+    // parses a list of args, which may be empty
+    private List<Expression> parseArgs() throws IOException, LexicalErrorException, ParserException {
+        switch(viewNextTokenType()) {
             case RPAREN_TOKEN:
+                // no arguments
                 return new ArrayList<>();
             case NUM_TOKEN:
             case ID_TOKEN:
             case LPAREN_TOKEN:
+                // there are arguments
                 List<Expression> args = new ArrayList<>();
                 args.add(parseExpression());
-                while(s.viewNextToken().getTokenType() != Token.TokenType.RPAREN_TOKEN) {
+                while(viewNextTokenType() != Token.TokenType.RPAREN_TOKEN) {
                     match(Token.TokenType.COMMA_TOKEN);
                     args.add(parseExpression());
                 }
@@ -457,14 +569,11 @@ public class CMinusParser implements Parser {
         }
     }
 
-    VarExpression parseVar() throws ParserException, IOException, LexicalErrorException {
-        String id = (String) match(Token.TokenType.ID_TOKEN).getTokenData();
-        return parseVar(id);
-    }
-
-    VarExpression parseVar(String id) throws IOException, LexicalErrorException, ParserException {
-        switch(s.viewNextToken().getTokenType()) {
+    // parses a var expression given an id.  It may just be a var, or it might be an indexed array.
+    private VarExpression parseVar(String id) throws IOException, LexicalErrorException, ParserException {
+        switch(viewNextTokenType()) {
             case LBRACKET_TOKEN:
+                // It's an indexed array
                 match(Token.TokenType.LBRACKET_TOKEN);
                 Expression expr = parseExpression();
                 match(Token.TokenType.RBRACKET_TOKEN);
@@ -484,30 +593,41 @@ public class CMinusParser implements Parser {
             case PLUS_TOKEN:
             case MINUS_TOKEN:
             case ASSIGN_TOKEN:
+                // It's just a var
                 return new VarExpression(id);
             default:
                 throw new ParserException("Unexpected token: " + getNextTokenTypeAsString());
         }
     }
 
-    NumExpression parseNumExpression() throws ParserException, IOException, LexicalErrorException {
-        return new NumExpression(Integer.parseInt(match(Token.TokenType.NUM_TOKEN).toString()));
+    // Parses a num expression.
+    private NumExpression parseNumExpression() throws ParserException, IOException, LexicalErrorException {
+        // This is a pretty easy function.
+        return new NumExpression(Integer.parseInt((String) match(Token.TokenType.NUM_TOKEN).getTokenData()));
     }
 
 
 
 
-    @Override
-    public void printTree() {
-        p.printTree(0);
-    }
 
     // Helper functions
-    String getNextTokenTypeAsString() throws IOException, LexicalErrorException {
-        return viewNextTokenType().toString();
+
+    // Returns the next token if it matches the given token type, throws an exception otherwise.
+    private Token match(Token.TokenType tokenType) throws ParserException, IOException, LexicalErrorException {
+        if(viewNextTokenType() != tokenType) {
+            throw new ParserException("Expected " + tokenType.toString() + ", found " + getNextTokenTypeAsString());
+        } else {
+            return s.getNextToken();
+        }
     }
 
-    Token.TokenType viewNextTokenType() throws IOException, LexicalErrorException {
+    // Returns the type of the next token (doesn't munch a token)
+    private Token.TokenType viewNextTokenType() throws IOException, LexicalErrorException {
         return s.viewNextToken().getTokenType();
+    }
+
+    // Gets the name of the next token type as a string (doesn't munch a token)
+    private String getNextTokenTypeAsString() throws IOException, LexicalErrorException {
+        return viewNextTokenType().toString();
     }
 }

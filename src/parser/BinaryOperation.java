@@ -1,5 +1,6 @@
 package parser;
 
+// Used by BinaryExpression to denote which operation it uses
 public enum BinaryOperation {
     // relop
     LessThanOrEqualTo,

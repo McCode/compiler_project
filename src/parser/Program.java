@@ -13,9 +13,8 @@ public class Program implements PrintableAstNode {
     public void printTree(int indentLevel) {
         printlnWithIndentation(indentLevel, "Program");
 
-        for(Declaration c: declarations) {
-
-            printTree(indentLevel + 1);
+        for(Declaration d: declarations) {
+            d.printTree(indentLevel + 1);
         }
     }
 }
