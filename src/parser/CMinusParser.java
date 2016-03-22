@@ -32,7 +32,18 @@ public class CMinusParser implements Parser {
             declarations.add(parseDeclaration());
         }
 
-        return p = new Program(declarations);
+        while(true) {
+            switch(viewNextTokenType()) {
+                case INT_TOKEN:
+                case VOID_TOKEN:
+                    declarations.add(parseDeclaration());
+                    break;
+                case EOF_TOKEN:
+                    return p = new Program(declarations);
+                default:
+                    throw new ParserException("Expected declaration, found " + getNextTokenTypeAsString());
+            }
+        }
     }
 
     // Parses both var declarations and function declarations.
