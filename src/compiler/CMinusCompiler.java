@@ -1,5 +1,6 @@
 package compiler;
 
+import scanner.LexicalErrorException;
 import x64codegen.X64AssemblyGenerator;
 import parser.*;
 import lowlevel.*;
@@ -29,10 +30,10 @@ public class CMinusCompiler implements Compiler {
 
         String fileName = filePrefix + ".c";
         try {
-            Parser myParser = new CMinusParser(fileName);
+            Parser myParser = new CMinusParser(new BufferedReader(new FileReader(new File(fileName))));
 
             Program parseTree = myParser.parse();
-            myParser.printAST(parseTree);
+            parseTree.printTree(0);
 
             CodeItem lowLevelCode = parseTree.genLLCode();
 
@@ -118,7 +119,8 @@ public class CMinusCompiler implements Compiler {
                 outFile.close();
             }
 
-        } catch (IOException ioe) {
+        } catch(LexicalErrorException | ParserException | IOException e) {
+            e.printStackTrace();
         }
 
     }

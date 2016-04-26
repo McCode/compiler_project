@@ -1,5 +1,7 @@
 package parser;
 
+import lowlevel.CodeItem;
+
 /**
  * This is here to enforce that all the node classes can printTree.
  */
@@ -13,4 +15,6 @@ public interface PrintableAstNode {
         for(int i = 0; i < indentLevel; i++) { System.out.print(indentation); }
         System.out.println(str);
     }
+
+    CodeItem genLLCode();
 }

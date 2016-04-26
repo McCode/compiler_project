@@ -1,5 +1,7 @@
 package lowlevel;
 
+import parser.ParserException;
+
 import java.io.*;
 
 /**
@@ -101,7 +103,7 @@ public class Operand {
 /***************************************************************************/
   // support methods
     // converts type to a string for printing
-  private String printType () {
+  private String printType () throws ParserException {
     if (type == OperandType.INTEGER) {
       return ("i");
     }
@@ -118,11 +120,11 @@ public class Operand {
       return ("s");
     }
     else {
-      throw new parser.CodeGenerationException("Operand: invalid type");
+      throw new parser.ParserException("Operand: invalid type");
     }
   }
     // prints an operand surrounded by parentheses
-  public void printLLCode(PrintWriter outFile) {
+  public void printLLCode(PrintWriter outFile) throws ParserException {
     if (outFile == null) {
       System.out.print("("+ printType() +" " + value + ")");
     }
