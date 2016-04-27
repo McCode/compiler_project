@@ -1,5 +1,7 @@
 package parser;
 
+import lowlevel.BasicBlock;
+
 import java.util.List;
 
 public class CompoundStatement implements Statement {
@@ -23,6 +25,13 @@ public class CompoundStatement implements Statement {
         printlnWithIndentation(indentLevel + 1, "Statements");
         for(Statement s: statements) {
             s.printTree(indentLevel + 2);
+        }
+    }
+
+    @Override
+    public void genLLCode(BasicBlock block) {
+        for(VarDeclaration d: declarations) {
+            block.getFunc().getTable().
         }
     }
 }

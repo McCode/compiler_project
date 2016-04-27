@@ -1,5 +1,7 @@
 package parser;
 
+import lowlevel.*;
+
 import java.util.List;
 
 public class FunctionDeclaration implements Declaration {
@@ -37,5 +39,40 @@ public class FunctionDeclaration implements Declaration {
 
         // print the compound-statement
         stmt.printTree(indentLevel + 1);
+    }
+
+    @Override
+    public CodeItem genLLCode() {
+        int intType = 0;
+        switch(type) {
+            case Void:
+                intType = Data.TYPE_VOID;
+                break;
+            case Int:
+                intType = Data.TYPE_INT;
+                break;
+        }
+
+        Function func = new lowlevel.Function(intType, id, getParamsAsFuncParam());
+        func.createBlock0();
+
+        stmt.genLLCode(func.getCurrBlock());
+
+        return func;
+    }
+
+    private FuncParam getParamsAsFuncParam() {
+        if(params.size() > 0) {
+            FuncParam p = new FuncParam(Data.TYPE_INT, params.get(0).id, params.get(0).isArray);
+            FuncParam ptr = p;
+            for(int i = 1; i < params.size(); i++) {
+                ptr.setNextParam(new FuncParam(Data.TYPE_INT, params.get(i).id, params.get(i).isArray));
+                ptr = ptr.getNextParam();
+            }
+
+            return p;
+        } else {
+            return new FuncParam();
+        }
     }
 }

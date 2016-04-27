@@ -1,3 +1,7 @@
 package parser;
 
-public interface Declaration extends PrintableAstNode {}
+import lowlevel.CodeItem;
+
+public interface Declaration extends PrintableAstNode {
+    public CodeItem genLLCode();
+}

@@ -1,5 +1,7 @@
 package parser;
 
+import lowlevel.*;
+
 public class VarDeclaration implements Declaration {
     public final String id;
     public final boolean isArray;
@@ -24,5 +26,10 @@ public class VarDeclaration implements Declaration {
         if(isArray) {
             printlnWithIndentation(indentLevel + 1, "Array length: " + arrayLength);
         }
+    }
+
+    @Override
+    public CodeItem genLLCode() {
+        return new Data(Data.TYPE_INT, id, isArray, arrayLength);
     }
 }
