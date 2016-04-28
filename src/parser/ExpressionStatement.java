@@ -1,5 +1,7 @@
 package parser;
 
+import lowlevel.BasicBlock;
+
 public class ExpressionStatement implements Statement {
     public final Expression expr;
 
@@ -15,5 +17,10 @@ public class ExpressionStatement implements Statement {
         } else {
             expr.printTree(indentLevel + 1);
         }
+    }
+
+    @Override
+    public void genLLCode(BasicBlock block) {
+        expr.genLLCode(block);
     }
 }

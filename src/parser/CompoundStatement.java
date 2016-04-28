@@ -2,6 +2,7 @@ package parser;
 
 import lowlevel.BasicBlock;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class CompoundStatement implements Statement {
@@ -30,8 +31,14 @@ public class CompoundStatement implements Statement {
 
     @Override
     public void genLLCode(BasicBlock block) {
+        HashMap symbolTable = block.getFunc().getTable();
+
         for(VarDeclaration d: declarations) {
-            block.getFunc().getTable().
+            symbolTable.put(d.id, block.getFunc().getNewRegNum());
+        }
+
+        for(Statement s: statements) {
+            s.genLLCode(block);
         }
     }
 }

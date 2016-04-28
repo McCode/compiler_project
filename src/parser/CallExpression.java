@@ -1,5 +1,8 @@
 package parser;
 
+import lowlevel.BasicBlock;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.util.List;
 
 public class CallExpression implements Expression {
@@ -23,5 +26,13 @@ public class CallExpression implements Expression {
                 e.printTree(indentLevel + 2);
             }
         }
+    }
+
+    @Override
+    public int genLLCode(BasicBlock block) {
+
+
+        throw new NotImplementedException();
+        return 0;
     }
 }

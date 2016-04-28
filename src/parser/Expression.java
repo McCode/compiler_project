@@ -1,3 +1,7 @@
 package parser;
 
-public interface Expression extends PrintableAstNode {}
+import lowlevel.BasicBlock;
+
+public interface Expression extends PrintableAstNode {
+    int genLLCode(BasicBlock block);
+}

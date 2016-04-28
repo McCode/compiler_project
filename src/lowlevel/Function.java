@@ -3,6 +3,7 @@ package lowlevel;
 import java.util.*;
 import java.io.*;
 import dataflow.BitArraySet;
+import parser.ParserException;
 
 /**
  * This class is the primary low-level abstraction for a function
@@ -19,6 +20,7 @@ import dataflow.BitArraySet;
 
 public class Function extends CodeItem {
     // instance variables
+    private HashMap globalHash;
 
     // the function return type (INT or VOID)
   private int funcType;
@@ -492,7 +494,7 @@ public class Function extends CodeItem {
 
 /***************************************************************************/
     // recursive routine which prints the function information
-  public void printLLCode(PrintWriter outFile) {
+  public void printLLCode(PrintWriter outFile) throws ParserException {
     if (outFile == null) {
       System.out.print("(FUNCTION  " + getName() + "  [");
       for (FuncParam curr = firstParam; curr != null; curr = curr.getNextParam()) {
@@ -527,4 +529,11 @@ public class Function extends CodeItem {
     }
   }
 
+    public HashMap getGlobalHash() {
+        return globalHash;
+    }
+
+    public void setGlobalHash(HashMap globalHash) {
+        this.globalHash = globalHash;
+    }
 }
