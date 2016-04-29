@@ -1,5 +1,6 @@
 package parser;
 
+import lowlevel.Attribute;
 import lowlevel.BasicBlock;
 import lowlevel.Operand;
 import lowlevel.Operation;
@@ -34,23 +35,31 @@ public class CallExpression implements Expression {
     public int genLLCode(BasicBlock block) {
         List<Integer> regNums = new ArrayList<>();
         for(int i = args.size() - 1; i >= 0; i--) {
-            regNums.set(args.size() - 1 - i, args.get(i).genLLCode(block));
+            regNums.add(args.get(i).genLLCode(block));
         }
 
+        int paramNum = 0;
         for(int reg: regNums) {
             Operation op = new Operation(Operation.OperationType.PASS, block);
             op.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, reg));
-            // TODO: figure out destination
+
+            if(paramNum < 6) {
+                op.addAttribute(new Attribute("PARAM_NUM", Integer.toString(paramNum)));
+                paramNum++;
+            }
             block.appendOper(op);
         }
 
         Operation callOp = new Operation(Operation.OperationType.CALL, block);
         callOp.setSrcOperand(0, new Operand(Operand.OperandType.STRING, id));
+        callOp.addAttribute(new Attribute("numParams", Integer.toString(regNums.size())));
         block.appendOper(callOp);
 
-        int returnReg = block.getFunc().getNewRegNum();
-        // TODO: add operation to move value from return register to a regular register
+        int regularRegister = block.getFunc().getNewRegNum();
+        Operation moveReturnValueOp = new Operation(Operation.OperationType.ASSIGN, block);
+        moveReturnValueOp.setSrcOperand(0, new Operand(Operand.OperandType.MACRO, "RetReg"));
+        moveReturnValueOp.setDestOperand(0, new Operand(Operand.OperandType.REGISTER, regularRegister));
 
-        return returnReg;
+        return regularRegister;
     }
 }

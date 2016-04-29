@@ -20,7 +20,7 @@ public class NumExpression implements Expression {
     @Override
     public int genLLCode(BasicBlock block) {
         Operation op = new Operation(Operation.OperationType.LOAD_I, block);
-        Operand srcOperand = new Operand(Operand.OperandType.INTEGER, num);
+        Operand srcOperand = new Operand(Operand.OperandType.STRING, Integer.toString(num));
         op.setSrcOperand(0, srcOperand);
         int regNum = block.getFunc().getNewRegNum();
         Operand destOperand = new Operand(Operand.OperandType.REGISTER, regNum);

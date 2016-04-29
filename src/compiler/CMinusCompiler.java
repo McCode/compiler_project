@@ -35,7 +35,7 @@ public class CMinusCompiler implements Compiler {
             Program parseTree = myParser.parse();
             parseTree.printTree(0);
 
-            CodeItem lowLevelCode = parseTree.genLLCode();
+            CodeItem lowLevelCode = parseTree.genLLCode(globalHash);
 
             fileName = filePrefix + ".ll";
             PrintWriter outFile =
@@ -126,7 +126,7 @@ public class CMinusCompiler implements Compiler {
     }
 
     public static void main(String[] args) {
-        String filePrefix = "test5";
+        String filePrefix = args[0];
         CMinusCompiler myCompiler = new CMinusCompiler();
         myCompiler.setGenX64Code(true);
         myCompiler.compile(filePrefix);

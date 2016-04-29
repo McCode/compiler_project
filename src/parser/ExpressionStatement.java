@@ -1,6 +1,6 @@
 package parser;
 
-import lowlevel.BasicBlock;
+import lowlevel.Function;
 
 public class ExpressionStatement implements Statement {
     public final Expression expr;
@@ -20,7 +20,7 @@ public class ExpressionStatement implements Statement {
     }
 
     @Override
-    public void genLLCode(BasicBlock block) {
-        expr.genLLCode(block);
+    public void genLLCode(Function func) {
+        expr.genLLCode(func.getCurrBlock());
     }
 }

@@ -2,6 +2,8 @@ package parser;
 
 import lowlevel.*;
 
+import java.util.HashMap;
+
 public class VarDeclaration implements Declaration {
     public final String id;
     public final boolean isArray;
@@ -29,7 +31,7 @@ public class VarDeclaration implements Declaration {
     }
 
     @Override
-    public CodeItem genLLCode() {
+    public CodeItem genLLCode(HashMap globalHash) {
         return new Data(Data.TYPE_INT, id, isArray, arrayLength);
     }
 }

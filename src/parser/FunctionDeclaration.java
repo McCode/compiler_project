@@ -2,6 +2,7 @@ package parser;
 
 import lowlevel.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class FunctionDeclaration implements Declaration {
@@ -42,7 +43,7 @@ public class FunctionDeclaration implements Declaration {
     }
 
     @Override
-    public CodeItem genLLCode() {
+    public CodeItem genLLCode(HashMap globalHash) {
         int intType = 0;
         switch(type) {
             case Void:
@@ -54,9 +55,21 @@ public class FunctionDeclaration implements Declaration {
         }
 
         Function func = new lowlevel.Function(intType, id, getParamsAsFuncParam());
-        func.createBlock0();
 
-        stmt.genLLCode(func.getCurrBlock());
+        for(Param p: params) {
+            func.getTable().put(p.id, func.getNewRegNum());
+        }
+
+        func.createBlock0();
+        func.setCurrBlock(func.getFirstBlock());
+        func.setGlobalHash(globalHash);
+
+        stmt.genLLCode(func);
+
+        func.appendBlock(func.getReturnBlock());
+        if(func.getFirstUnconnectedBlock() != null) {
+            func.appendBlock(func.getFirstUnconnectedBlock());
+        }
 
         return func;
     }
@@ -72,7 +85,7 @@ public class FunctionDeclaration implements Declaration {
 
             return p;
         } else {
-            return new FuncParam();
+            return null;
         }
     }
 }

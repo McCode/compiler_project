@@ -1,6 +1,7 @@
 package parser;
 
 import lowlevel.CodeItem;
+import lowlevel.Function;
 
 import java.util.*;
 
@@ -20,13 +21,15 @@ public class Program implements PrintableAstNode {
         }
     }
 
-    public CodeItem genLLCode() {
-        CodeItem code = declarations.get(0).genLLCode();
+    public CodeItem genLLCode(HashMap globalHash) {
+        CodeItem code = declarations.get(0).genLLCode(globalHash);
         CodeItem ptr = code;
+
         for(int i = 1; i < declarations.size(); i++) {
-            ptr.setNextItem(declarations.get(i).genLLCode());
+            ptr.setNextItem(declarations.get(i).genLLCode(globalHash));
             ptr = ptr.getNextItem();
         }
+
         return code;
     }
 }

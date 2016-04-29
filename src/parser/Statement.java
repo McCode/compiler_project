@@ -1,7 +1,7 @@
 package parser;
 
-import lowlevel.BasicBlock;
+import lowlevel.Function;
 
 public interface Statement extends PrintableAstNode {
-    void genLLCode(BasicBlock block);
+    void genLLCode(Function func);
 }
