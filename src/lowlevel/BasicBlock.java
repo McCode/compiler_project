@@ -292,7 +292,7 @@ public class BasicBlock {
   }
 
     // prints the BB, then calls printLLCode on each Operation in the block
-  public void printLLCode(PrintWriter outFile) throws ParserException {
+  public void printLLCode(PrintWriter outFile) {
 
     if (outFile == null) {
       System.out.println("  (BB " + this.getBlockNum());

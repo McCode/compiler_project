@@ -313,7 +313,7 @@ public class Operation {
   }
 
     // prints the Operation, recursively calling print on each Operand
-  public void printLLCode(PrintWriter outFile) throws ParserException {
+  public void printLLCode(PrintWriter outFile) {
     if (outFile == null) {
       System.out.print("    (OPER " + this.getNum() + " " + printOperType() + " [");
       for (int currDest = 0; currDest <= maxDest; currDest++) {

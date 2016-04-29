@@ -103,7 +103,7 @@ public class Operand {
 /***************************************************************************/
   // support methods
     // converts type to a string for printing
-  private String printType () throws ParserException {
+  private String printType () {
     if (type == OperandType.INTEGER) {
       return ("i");
     }
@@ -120,11 +120,11 @@ public class Operand {
       return ("s");
     }
     else {
-      throw new parser.ParserException("Operand: invalid type");
+      throw new LowLevelException("Operand: invalid type");
     }
   }
     // prints an operand surrounded by parentheses
-  public void printLLCode(PrintWriter outFile) throws ParserException {
+  public void printLLCode(PrintWriter outFile) {
     if (outFile == null) {
       System.out.print("("+ printType() +" " + value + ")");
     }

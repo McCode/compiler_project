@@ -494,7 +494,7 @@ public class Function extends CodeItem {
 
 /***************************************************************************/
     // recursive routine which prints the function information
-  public void printLLCode(PrintWriter outFile) throws ParserException {
+  public void printLLCode(PrintWriter outFile) {
     if (outFile == null) {
       System.out.print("(FUNCTION  " + getName() + "  [");
       for (FuncParam curr = firstParam; curr != null; curr = curr.getNextParam()) {
