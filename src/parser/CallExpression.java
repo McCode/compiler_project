@@ -1,9 +1,11 @@
 package parser;
 
 import lowlevel.BasicBlock;
+import lowlevel.Operand;
+import lowlevel.Operation;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.List;
+import java.util.*;
 
 public class CallExpression implements Expression {
     public final String id;
@@ -30,9 +32,25 @@ public class CallExpression implements Expression {
 
     @Override
     public int genLLCode(BasicBlock block) {
+        List<Integer> regNums = new ArrayList<>();
+        for(int i = args.size() - 1; i >= 0; i--) {
+            regNums.set(args.size() - 1 - i, args.get(i).genLLCode(block));
+        }
 
+        for(int reg: regNums) {
+            Operation op = new Operation(Operation.OperationType.PASS, block);
+            op.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, reg));
+            // TODO: figure out destination
+            block.appendOper(op);
+        }
 
-        throw new NotImplementedException();
-        return 0;
+        Operation callOp = new Operation(Operation.OperationType.CALL, block);
+        callOp.setSrcOperand(0, new Operand(Operand.OperandType.STRING, id));
+        block.appendOper(callOp);
+
+        int returnReg = block.getFunc().getNewRegNum();
+        // TODO: add operation to move value from return register to a regular register
+
+        return returnReg;
     }
 }
