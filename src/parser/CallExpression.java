@@ -59,6 +59,7 @@ public class CallExpression implements Expression {
         Operation moveReturnValueOp = new Operation(Operation.OperationType.ASSIGN, block);
         moveReturnValueOp.setSrcOperand(0, new Operand(Operand.OperandType.MACRO, "RetReg"));
         moveReturnValueOp.setDestOperand(0, new Operand(Operand.OperandType.REGISTER, regularRegister));
+        block.appendOper(moveReturnValueOp);
 
         return regularRegister;
     }

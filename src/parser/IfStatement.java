@@ -1,5 +1,6 @@
 package parser;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import lowlevel.BasicBlock;
 import lowlevel.Function;
 import lowlevel.Operand;
@@ -67,9 +68,15 @@ public class IfStatement implements Statement {
 
             func.setCurrBlock(elseBlock);
             elseStmt.genLLCode(func);
-            Operation branchBackOp = new Operation(Operation.OperationType.JMP, block);
-            branchBackOp.setSrcOperand(0, new Operand(Operand.OperandType.BLOCK, postBlock.getBlockNum()));
-            block.appendOper(branchBackOp);
+            BasicBlock endElseBlock = elseBlock;
+            while(elseBlock.getNextBlock() != null) {
+                endElseBlock = elseBlock.getNextBlock();
+            }
+            if(endElseBlock.getLastOper().getType() != Operation.OperationType.JMP) {
+                Operation branchBackOp = new Operation(Operation.OperationType.JMP, endElseBlock);
+                branchBackOp.setSrcOperand(0, new Operand(Operand.OperandType.BLOCK, postBlock.getBlockNum()));
+                endElseBlock.appendOper(branchBackOp);
+            }
 
             func.appendUnconnectedBlock(elseBlock);
 
