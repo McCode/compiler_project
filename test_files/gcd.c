@@ -10,7 +10,7 @@ int gcd (int u, int v)
         /* u-u/v*v == u mod v */
 }
 
-void main (void)
+int main (void)
 {
     int x;
     int y;
