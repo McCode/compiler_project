@@ -38,14 +38,14 @@ public class CallExpression implements Expression {
             regNums.add(args.get(i).genLLCode(block));
         }
 
-        int paramNum = 0;
+        int paramNum = Math.min(args.size(), 6);
         for(int reg: regNums) {
             Operation op = new Operation(Operation.OperationType.PASS, block);
             op.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, reg));
 
-            if(paramNum < 6) {
+            if(paramNum > 0) {
+                paramNum--;
                 op.addAttribute(new Attribute("PARAM_NUM", Integer.toString(paramNum)));
-                paramNum++;
             }
             block.appendOper(op);
         }
