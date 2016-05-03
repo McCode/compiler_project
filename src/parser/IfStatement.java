@@ -69,10 +69,10 @@ public class IfStatement implements Statement {
             func.setCurrBlock(elseBlock);
             elseStmt.genLLCode(func);
             BasicBlock endElseBlock = elseBlock;
-            while(elseBlock.getNextBlock() != null) {
-                endElseBlock = elseBlock.getNextBlock();
+            while(endElseBlock.getNextBlock() != null) {
+                endElseBlock = endElseBlock.getNextBlock();
             }
-            if(endElseBlock.getLastOper().getType() != Operation.OperationType.JMP) {
+            if(endElseBlock.getLastOper() != null && endElseBlock.getLastOper().getType() != Operation.OperationType.JMP) {
                 Operation branchBackOp = new Operation(Operation.OperationType.JMP, endElseBlock);
                 branchBackOp.setSrcOperand(0, new Operand(Operand.OperandType.BLOCK, postBlock.getBlockNum()));
                 endElseBlock.appendOper(branchBackOp);

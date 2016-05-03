@@ -39,10 +39,10 @@ public class WhileStatement implements Statement {
 
         conditionReg = expr.genLLCode(block);
         Operation loopOp = new Operation(Operation.OperationType.BNE, block);
-        branchOp.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, conditionReg));
-        branchOp.setSrcOperand(1, new Operand(Operand.OperandType.INTEGER, 0));
-        branchOp.setSrcOperand(2, new Operand(Operand.OperandType.BLOCK, loopBlock.getBlockNum()));
-        block.appendOper(branchOp);
+        loopOp.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, conditionReg));
+        loopOp.setSrcOperand(1, new Operand(Operand.OperandType.INTEGER, 0));
+        loopOp.setSrcOperand(2, new Operand(Operand.OperandType.BLOCK, loopBlock.getBlockNum()));
+        block.appendOper(loopOp);
 
         func.appendToCurrentBlock(postBlock);
         func.setCurrBlock(postBlock);
