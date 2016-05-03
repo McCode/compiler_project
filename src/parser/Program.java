@@ -1,8 +1,6 @@
 package parser;
 
 import lowlevel.CodeItem;
-import lowlevel.Function;
-
 import java.util.*;
 
 public class Program implements PrintableAstNode {

@@ -1,9 +1,7 @@
 package parser;
 
 import lowlevel.*;
-
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class FunctionDeclaration implements Declaration {
     public final TypeSpecifier type;

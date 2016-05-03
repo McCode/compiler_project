@@ -1,7 +1,6 @@
 package parser;
 
 import scanner.LexicalErrorException;
-
 import java.io.IOException;
 
 public interface Parser {

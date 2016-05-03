@@ -1,7 +1,5 @@
 package parser;
 
-import lowlevel.CodeItem;
-
 /**
  * This is here to enforce that all the node classes can printTree.
  */

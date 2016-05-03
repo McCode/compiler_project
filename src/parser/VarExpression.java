@@ -1,8 +1,6 @@
 package parser;
 
-import lowlevel.BasicBlock;
-import lowlevel.Function;
-
+import lowlevel.*;
 import java.util.HashMap;
 
 public class VarExpression implements Expression {

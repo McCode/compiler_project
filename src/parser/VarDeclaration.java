@@ -1,7 +1,6 @@
 package parser;
 
 import lowlevel.*;
-
 import java.util.HashMap;
 
 public class VarDeclaration implements Declaration {

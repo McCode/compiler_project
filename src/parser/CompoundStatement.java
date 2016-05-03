@@ -1,10 +1,7 @@
 package parser;
 
-import lowlevel.BasicBlock;
-import lowlevel.Function;
-
-import java.util.HashMap;
-import java.util.List;
+import lowlevel.*;
+import java.util.*;
 
 public class CompoundStatement implements Statement {
     public final List<VarDeclaration> declarations;
