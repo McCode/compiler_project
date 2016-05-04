@@ -23,14 +23,6 @@ public class BinaryExpression implements Expression {
     @Override
     public int genLLCode(BasicBlock block) {
         Operation.OperationType opType;
-        int lhsRegNum = lhs.genLLCode(block);
-        int rhsRegNum = rhs.genLLCode(block);
-        int returnRegNum;
-        if(operation == BinaryOperation.Assign) {
-            returnRegNum = lhsRegNum;
-        } else {
-            returnRegNum = block.getFunc().getNewRegNum();
-        }
 
         switch(operation) {
             case LessThanOrEqualTo:
@@ -65,9 +57,32 @@ public class BinaryExpression implements Expression {
                 break;
             case Assign:
                 opType = Operation.OperationType.ASSIGN;
-                break;
+
+                VarExpression var = (VarExpression)lhs;
+                if(block.getFunc().getTable().containsKey(var.id)) {
+                    break;
+                } else if(block.getFunc().getGlobalHash().containsKey(var.id)) {
+                    int rhsRegNum = rhs.genLLCode(block);
+                    Operation storeOp = new Operation(Operation.OperationType.STORE_I, block);
+                    storeOp.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, rhsRegNum));
+                    storeOp.setSrcOperand(1, new Operand(Operand.OperandType.STRING, var.id));
+                    block.appendOper(storeOp);
+
+                    return rhsRegNum;
+                } else {
+                    throw new LowLevelException("Variable " + var.id + " is not defined.");
+                }
             default:
                 throw new LowLevelException("This never happens.");
+        }
+
+        int lhsRegNum = lhs.genLLCode(block);
+        int rhsRegNum = rhs.genLLCode(block);
+        int returnRegNum;
+        if(operation == BinaryOperation.Assign) {
+            returnRegNum = lhsRegNum;
+        } else {
+            returnRegNum = block.getFunc().getNewRegNum();
         }
 
         Operation op = new Operation(opType, block);

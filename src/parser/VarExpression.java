@@ -36,7 +36,12 @@ public class VarExpression implements Expression {
         if(funcSymbolTable.containsKey(id)) {
             return (int)funcSymbolTable.get(id);
         } else if(globalSymbolTable.containsKey(id)) {
-            return (int)globalSymbolTable.get(id);
+            int returnRegNum = func.getNewRegNum();
+            Operation op = new Operation(Operation.OperationType.LOAD_I, block);
+            op.setSrcOperand(0, new Operand(Operand.OperandType.STRING, id));
+            op.setDestOperand(0, new Operand(Operand.OperandType.REGISTER, returnRegNum));
+            block.appendOper(op);
+            return returnRegNum;
         } else {
             throw new lowlevel.LowLevelException("Var " + id + " is not defined");
         }

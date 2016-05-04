@@ -31,6 +31,8 @@ public class VarDeclaration implements Declaration {
 
     @Override
     public CodeItem genLLCode(HashMap globalHash) {
-        return new Data(Data.TYPE_INT, id);
+        Data d = new Data(Data.TYPE_INT, id);
+        globalHash.put(id, d);
+        return d;
     }
 }
