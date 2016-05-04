@@ -59,8 +59,10 @@ public class FunctionDeclaration implements Declaration {
         }
 
         func.createBlock0();
-        func.setCurrBlock(func.getFirstBlock());
         func.setGlobalHash(globalHash);
+        BasicBlock block = new BasicBlock(func);
+        func.appendBlock(block);
+        func.setCurrBlock(block);
 
         stmt.genLLCode(func);
 
