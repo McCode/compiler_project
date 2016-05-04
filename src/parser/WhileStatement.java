@@ -37,12 +37,12 @@ public class WhileStatement implements Statement {
         func.setCurrBlock(loopBlock);
         stmt.genLLCode(func);
 
-        conditionReg = expr.genLLCode(block);
-        Operation loopOp = new Operation(Operation.OperationType.BNE, block);
+        conditionReg = expr.genLLCode(loopBlock);
+        Operation loopOp = new Operation(Operation.OperationType.BNE, loopBlock);
         loopOp.setSrcOperand(0, new Operand(Operand.OperandType.REGISTER, conditionReg));
         loopOp.setSrcOperand(1, new Operand(Operand.OperandType.INTEGER, 0));
         loopOp.setSrcOperand(2, new Operand(Operand.OperandType.BLOCK, loopBlock.getBlockNum()));
-        block.appendOper(loopOp);
+        loopBlock.appendOper(loopOp);
 
         func.appendToCurrentBlock(postBlock);
         func.setCurrBlock(postBlock);
